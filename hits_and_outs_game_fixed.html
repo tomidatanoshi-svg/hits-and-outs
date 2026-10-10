@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>HITS & OUTS - Mind Baseball</title>
+<style>
+/* ===== Pastel Pop Theme ===== */
+:root{
+  --bg:#fff8fb;
+  --card:#ffffff;
+  --ink:#4b4960;
+  --muted:#8c8aa0;
+  --pink:#ff9fbd;
+  --pink2:#ffd1df;
+  --yellow:#ffd86b;
+  --yellow2:#fff1b8;
+  --mint:#8fe3c4;
+  --mint2:#d8f7eb;
+  --sky:#8fcdf7;
+  --sky2:#dff2ff;
+  --lav:#b9a7f7;
+  --lav2:#eee9ff;
+  --peach:#ffb38a;
+  --peach2:#ffe5d7;
+  --border:#eee7f0;
+}
+body{
+  background:
+    radial-gradient(circle at 8% 8%, #ffe1ec 0 11%, transparent 25%),
+    radial-gradient(circle at 92% 12%, #dff5ff 0 10%, transparent 24%),
+    radial-gradient(circle at 85% 90%, #e4faef 0 12%, transparent 25%),
+    linear-gradient(135deg,#fffafd,#f8fbff 55%,#fffdf5);
+  color:var(--ink);
+}
+.card,.panel,.box,.game-card{
+  background:rgba(255,255,255,.92);
+  border:2px solid var(--border);
+  border-radius:24px;
+  box-shadow:0 10px 28px rgba(116,105,145,.10);
+}
+button{
+  border:0;
+  border-radius:18px;
+  font-weight:800;
+  color:#514c66;
+  background:linear-gradient(135deg,#ffe0eb,#e7ddff);
+  box-shadow:0 5px 0 rgba(185,167,247,.35);
+  transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+button:hover{filter:saturate(1.08);transform:translateY(-1px)}
+button:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(185,167,247,.35)}
+input,select{
+  border:2px solid #eee4ef!important;
+  border-radius:16px!important;
+  background:#fff!important;
+  color:var(--ink)!important;
+}
+.base{
+  background:var(--sky2)!important;
+  border-color:var(--sky)!important;
+  color:#496a82!important;
+  box-shadow:0 5px 12px rgba(143,205,247,.22);
+}
+.base.occupied{
+  background:var(--yellow)!important;
+  border-color:#f1c64e!important;
+  color:#725d21!important;
+  box-shadow:0 0 0 5px rgba(255,216,107,.25),0 7px 15px rgba(241,198,78,.28);
+}
+.runner-status{
+  background:linear-gradient(135deg,var(--mint2),var(--sky2))!important;
+  border:2px solid #bdebdc!important;
+  border-radius:22px!important;
+  box-shadow:0 8px 20px rgba(105,181,157,.10);
+}
+.runner{
+  background:#fff!important;
+  border:2px solid #dfe8ec!important;
+  border-radius:16px!important;
+}
+.runner.on{
+  background:var(--yellow2)!important;
+  border-color:var(--yellow)!important;
+}
+.runner i{
+  background:#e8e5ef!important;
+}
+.runner.on i{
+  background:var(--yellow)!important;
+  box-shadow:0 0 0 4px rgba(255,216,107,.22);
+}
+.runner b{color:#625c70!important}
+h1,h2,h3{color:#5b5670}
+.status,.score,.inning{
+  border-radius:18px;
+  background:linear-gradient(135deg,#fff1f6,#f0ecff);
+  border:2px solid #eee5f4;
+}
+.log,.history{
+  background:#fffdfd!important;
+  border-color:#eee7f0!important;
+}
+.hit,.primary,.start,.next{
+  background:linear-gradient(135deg,#ffb4ca,#ffd6a8)!important;
+  color:#704d5a!important;
+}
+.secondary{
+  background:linear-gradient(135deg,#c8f2e2,#cbe9ff)!important;
+}
+.danger{
+  background:linear-gradient(135deg,#ffd0d0,#ffe2b8)!important;
+}
+.badge{
+  background:var(--lav2)!important;
+  border-color:#d8ceff!important;
+}
+</style>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0b1220;color:#fff;min-height:100vh}
+.app{max-width:620px;margin:auto;padding:18px 14px 28px}
+h1{margin:4px 0 2px;text-align:center;font-size:28px;letter-spacing:1px}.sub{text-align:center;color:#9fb0c7;font-size:12px;margin-bottom:18px}
+.card{background:#141e2f;border:1px solid #26364e;border-radius:18px;padding:18px;box-shadow:0 10px 30px #0005}
+.hidden{display:none!important}.center{text-align:center}.muted{color:#aebbd0}.small{font-size:12px}
+input{width:100%;padding:14px;border-radius:12px;border:1px solid #33445e;background:#0e1727;color:#fff;font-size:16px;margin:7px 0}
+button{border:0;border-radius:14px;padding:14px 16px;font-size:16px;font-weight:700;cursor:pointer;background:#e8eef7;color:#0b1220;width:100%;margin-top:9px}
+button:disabled{opacity:.4;cursor:not-allowed}.danger{background:#d94b4b;color:#fff}.accent{background:#f3c44f}.secondary{background:#24344c;color:#fff}
+.score{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.scorebox{padding:12px;border-radius:14px;background:#0e1727;text-align:center}.scorebox b{font-size:28px;display:block}
+.meta{display:flex;justify-content:space-between;gap:8px;color:#c9d5e6;font-size:13px;margin-bottom:12px}
+.diamond{position:relative;width:260px;height:190px;margin:12px auto}.base{position:absolute;width:48px;height:48px;background:#e8eef7;color:#0b1220;transform:rotate(45deg);display:flex;align-items:center;justify-content:center;border-radius:5px;font-weight:800;box-shadow:0 3px 8px #0005;transition:.2s}.base.occupied{background:#f3c44f;box-shadow:0 0 16px #f3c44f;color:#111}.base span{transform:rotate(-45deg);font-size:11px}.home{left:106px;bottom:0}.b1{right:12px;top:62px}.b2{left:106px;top:7px}.b3{left:12px;top:62px}
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{min-height:76px;background:#24344c;color:#fff;border:1px solid #3a4d68}.choice strong{display:block;font-size:18px}.choice small{color:#b9c7d9}.choice.selected{outline:3px solid #f3c44f}
+.status{padding:12px;border-radius:12px;background:#0e1727;margin:10px 0;text-align:center}.result{font-size:30px;font-weight:900;margin:8px 0}.log{max-height:150px;overflow:auto;margin-top:10px;font-size:12px;color:#bdc9d9}.log div{padding:5px 0;border-bottom:1px solid #26364e}
+.runner-status{margin:10px auto 14px;max-width:360px;padding:10px 12px;border-radius:14px;background:#0b1422;border:1px solid #30425d}
+.runner-title{text-align:center;font-size:10px;letter-spacing:2px;color:#8ea3be;margin-bottom:8px}
+.runner-lights{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.runner{display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 5px;border-radius:10px;background:#18263a;color:#8091a8;font-size:12px}
+.runner i{width:15px;height:15px;border-radius:50%;background:#3a4a60;display:block;box-shadow:inset 0 1px 2px #0008}
+.runner.on{color:#fff;background:#29415a}
+.runner.on i{background:#f3c44f;box-shadow:0 0 10px #f3c44f}
+.runner b{font-size:12px}
+.notice{padding:12px;border-radius:12px;background:#18263b;color:#dbe7f7;line-height:1.6}
+</style>
+
+<style id="pastel-pop-final">
+html, body {
+  background: #fff8fc !important;
+  color: #514b65 !important;
+}
+body::before, body::after { background: none !important; }
+
+h1, h2, h3, h4, p, label, span, b, strong, small {
+  color: #514b65 !important;
+}
+
+header, .header, .top, .hero {
+  background: linear-gradient(135deg, #ffd9e6, #e9e0ff) !important;
+  color: #514b65 !important;
+  border-color: #f0dceb !important;
+}
+
+.card, .panel, .box, .game-card, section, .status, .score, .inning,
+.controls, .result, .log, .history, .runner-status {
+  background: #ffffff !important;
+  color: #514b65 !important;
+  border-color: #eadfec !important;
+  box-shadow: 0 8px 24px rgba(130,110,155,.12) !important;
+}
+
+button, .btn {
+  background: linear-gradient(135deg, #ffd0df, #dcd2ff) !important;
+  color: #514b65 !important;
+  border: 2px solid #efcfe0 !important;
+  box-shadow: 0 4px 0 #d5c9ec !important;
+}
+
+button:hover, .btn:hover {
+  background: linear-gradient(135deg, #ffc2d5, #d3c7ff) !important;
+}
+
+input, select, textarea {
+  background: #ffffff !important;
+  color: #514b65 !important;
+  border: 2px solid #eadfec !important;
+}
+
+.base, .base.home, .base.first, .base.second, .base.third {
+  background: #dff3ff !important;
+  color: #4c6880 !important;
+  border-color: #9ed7f5 !important;
+}
+
+.base.occupied {
+  background: #ffe27a !important;
+  color: #6d5a22 !important;
+  border-color: #f2c94c !important;
+}
+
+.runner-status {
+  background: linear-gradient(135deg, #e2faef, #e1f3ff) !important;
+  border-color: #bce8d7 !important;
+}
+
+.runner {
+  background: #ffffff !important;
+  color: #625b70 !important;
+  border-color: #dfe4ed !important;
+}
+
+.runner.on {
+  background: #fff1b8 !important;
+  color: #655522 !important;
+  border-color: #ffd75a !important;
+}
+
+.runner i {
+  background: #dcd9e5 !important;
+}
+
+.runner.on i {
+  background: #ffd75a !important;
+}
+
+.badge, .tag {
+  background: #eee9ff !important;
+  color: #665b91 !important;
+  border-color: #d7ceff !important;
+}
+
+.hit, .primary, .start, .next {
+  background: linear-gradient(135deg, #ffb7cc, #ffd2a8) !important;
+  color: #704b5a !important;
+}
+
+.secondary {
+  background: linear-gradient(135deg, #c8f3e2, #cceaff) !important;
+  color: #4d6870 !important;
+}
+
+.danger {
+  background: linear-gradient(135deg, #ffd1d1, #ffe3bd) !important;
+  color: #765353 !important;
+}
+
+a {
+  color: #7a69b5 !important;
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+<h1>⚾ HITS & OUTS</h1>
+<div class="sub">MIND BASEBALL / 2 PLAYER</div>
+
+<section id="setup" class="card">
+  <h2>チーム設定</h2>
+  <input id="p1" placeholder="チームA" value="TEAM A">
+  <input id="p2" placeholder="チームB" value="TEAM B">
+  <label for="innings" style="display:block;margin-top:10px;font-weight:800;">プレイ回数</label>
+  <select id="innings" style="width:100%;padding:14px;border-radius:12px;font-size:16px;margin:7px 0;">
+    <option value="3" selected>3回</option>
+    <option value="5">5回</option>
+    <option value="7">7回</option>
+    <option value="9">9回</option>
+  </select>
+  <div class="notice small">スマホ1台を交互に渡して遊ぶ2人対戦版。守備側が秘密の「ヒット」を置き、攻撃側が4つの塁から1つを予想します。</div>
+  <button class="accent" onclick="startGame()">試合開始</button>
+</section>
+
+<section id="game" class="hidden">
+  <div class="score">
+    <div class="scorebox"><span id="nameA"></span><b id="scoreA">0</b></div>
+    <div class="scorebox"><span id="nameB"></span><b id="scoreB">0</b></div>
+  </div>
+  <div class="meta"><span id="inning">1回表</span><span id="outs">0 OUT</span><span id="turn"></span></div>
+  <div class="card">
+    <div id="phase"></div>
+    <div class="runner-status">
+  <div class="runner-title">RUNNERS</div>
+  <div class="runner-lights">
+    <span id="r1" class="runner"><i></i><b>1塁</b></span>
+    <span id="r2" class="runner"><i></i><b>2塁</b></span>
+    <span id="r3" class="runner"><i></i><b>3塁</b></span>
+  </div>
+</div>
+    <div id="diamond" class="diamond">
+      <div class="base home"><span>HOME</span></div><div id="base1" class="base b1"><span>1塁</span></div>
+      <div id="base2" class="base b2"><span>2塁</span></div><div id="base3" class="base b3"><span>3塁</span></div>
+    </div>
+    <div id="message" class="status">準備中</div>
+    <div id="choices" class="choice-grid"></div>
+    <button id="action" class="accent hidden"></button>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <b>プレイログ</b><div id="log" class="log"></div>
+  </div>
+</section>
+
+<section id="end" class="card hidden center">
+  <div class="result">GAME SET</div>
+  <h2 id="winner"></h2>
+  <p id="finalScore"></p>
+  <button class="accent" onclick="location.reload()">もう一度遊ぶ</button>
+</section>
+</div>
+
+<script>
+const bases=[
+ {id:"home",name:"ホーム",short:"HOME",runs:4},
+ {id:"b1",name:"1塁",short:"1ST",runs:1},
+ {id:"b2",name:"2塁",short:"2ND",runs:2},
+ {id:"b3",name:"3塁",short:"3RD",runs:3}
+];
+let S={};
+
+function startGame(){
+ const a=document.getElementById("p1").value.trim()||"TEAM A";
+ const b=document.getElementById("p2").value.trim()||"TEAM B";
+ const maxInnings=parseInt(document.getElementById("innings").value,10);
+ S={teams:[a,b],score:[0,0],inning:1,maxInnings,half:0,outs:0,runners:[false,false,false],def:0,off:1,hidden:null,blocked:[],lastResult:"",log:[]};
+ document.getElementById("setup").classList.add("hidden");
+ document.getElementById("game").classList.remove("hidden");
+ document.getElementById("nameA").textContent=a;document.getElementById("nameB").textContent=b;
+ beginAtBat();
+}
+
+function beginAtBat(){
+ S.def=S.half===0?1:0; S.off=S.half===0?0:1; S.hidden=null; S.blocked=[];
+ render();
+ showDefense();
+}
+
+function render(){
+ document.getElementById("scoreA").textContent=S.score[0];
+ document.getElementById("scoreB").textContent=S.score[1];
+ document.getElementById("inning").textContent=`${S.inning}回 ${S.half===0?"表":"裏"}`;
+ document.getElementById("outs").textContent=`${S.outs} OUT`;
+ document.getElementById("turn").textContent=`攻撃：${S.teams[S.off]}`;
+ [1,2,3].forEach(i=>{
+   const occupied=!!S.runners[i-1];
+   document.getElementById("r"+i).classList.toggle("on",occupied);
+   document.getElementById("base"+i).classList.toggle("occupied",occupied);
+   const base=document.getElementById("base"+i);
+   const span=base.querySelector("span");
+   span.textContent=occupied ? "🏃" : i+"塁";
+ });
+ document.getElementById("log").innerHTML=S.log.slice(-12).reverse().map(x=>`<div>${x}</div>`).join("");
+}
+
+function showDefense(){
+ const defender=S.teams[S.def];
+ document.getElementById("phase").innerHTML=`<h2>守備：${defender}</h2><p class="muted">ヒットを置く場所を1つだけ選んでね。</p>`;
+ document.getElementById("message").textContent="攻撃側に見られないように選択してね";
+ const c=document.getElementById("choices");c.innerHTML="";
+ bases.forEach(b=>{
+  if(S.blocked.includes(b.id))return;
+  const btn=document.createElement("button");btn.className="choice";btn.innerHTML=`<strong>${b.name}</strong><small>ここにヒット</small>`;
+  btn.onclick=()=>selectDefense(b.id);
+  c.appendChild(btn);
+ });
+ document.getElementById("action").classList.add("hidden");
+}
+
+function selectDefense(id){
+ S.hidden=id;
+ document.getElementById("phase").innerHTML="<h2>秘密の配置完了</h2>";
+ document.getElementById("message").innerHTML=`<b>守備側：</b> ヒットを配置しました。<br>スマホを攻撃側へ渡してね。`;
+ document.getElementById("choices").innerHTML="";
+ const btn=document.getElementById("action");btn.classList.remove("hidden");btn.textContent="攻撃側の画面へ";
+ btn.onclick=showOffense;
+}
+
+function showOffense(){
+ document.getElementById("phase").innerHTML=`<h2>攻撃：${S.teams[S.off]}</h2><p class="muted">ヒットが置かれたと思う塁を選ぼう。</p>`;
+ document.getElementById("message").textContent=S.blocked.length?`前のアウトで公開された塁：${S.blocked.map(id=>bases.find(b=>b.id===id).name).join("、")}`:"4択から1つ選択";
+ const c=document.getElementById("choices");c.innerHTML="";
+ bases.forEach(b=>{
+  if(S.blocked.includes(b.id))return;
+  const btn=document.createElement("button");btn.className="choice";btn.innerHTML=`<strong>${b.name}</strong><small>ここを狙う</small>`;
+  btn.onclick=()=>resolve(b.id);
+  c.appendChild(btn);
+ });
+ document.getElementById("action").classList.add("hidden");
+}
+
+function resolve(guess){
+ const hit=guess===S.hidden;
+ const b=bases.find(x=>x.id===guess);
+ if(hit){
+   const text=b.id==="home"?"💥 ホームラン！":`⚾ ${b.name}への${b.runs===1?"シングル":b.runs===2?"ツーベース":"スリーベース"}！`;
+   const runs=advance(b.runs);
+   S.score[S.off]+=runs;
+   S.log.push(`${S.teams[S.off]}：${text}${runs?` ${runs}点！`:""}`);
+   S.lastResult=text;
+   render();
+   S.hidden=null; S.blocked=[];
+   document.getElementById("phase").innerHTML=`<div class="result">${text}</div>`;
+   document.getElementById("message").textContent=runs?`${runs}点入った！`:"ランナーが進塁！";
+   const btn=document.getElementById("action");btn.classList.remove("hidden");btn.textContent="次の1球へ";btn.onclick=beginAtBat;
+ }else{
+   S.outs++;
+   S.blocked.push(guess);
+   S.log.push(`${S.teams[S.off]}：${b.name}はアウト！`);
+   if(S.outs>=3){ endHalf();return; }
+   render();
+   document.getElementById("phase").innerHTML=`<div class="result">❌ OUT!</div><p>「${b.name}」はアウトとして公開されたよ。</p>`;
+   document.getElementById("message").textContent="残った塁から、もう一度狙おう。";
+   const btn=document.getElementById("action");btn.classList.remove("hidden");btn.textContent="次の打席へ";btn.onclick=showOffense;
+   document.getElementById("choices").innerHTML="";
+ }
+}
+
+function advance(distance){
+ let scored=0;
+ if(distance===4){
+   scored=S.runners.filter(Boolean).length+1;
+   S.runners=[false,false,false];
+   return scored;
+ }
+ const nr=[false,false,false];
+ // 走者を進める。通常は全走者がヒットの塁数だけ進塁する。
+ for(let i=2;i>=0;i--){
+   if(!S.runners[i]) continue;
+   const target=i+distance;
+   if(target>=3) scored++;
+   else nr[target]=true;
+ }
+ const batterBase=distance-1;
+ if(batterBase>=3) scored++;
+ else nr[batterBase]=true;
+ S.runners=nr;
+ return scored;
+}
+
+function endHalf(){
+ S.log.push(`${S.teams[S.off]}：3アウト、チェンジ！`);
+ S.outs=0;S.runners=[false,false,false];S.blocked=[];
+ if(S.half===0){S.half=1;}else{S.half=0;S.inning++;}
+ if(S.inning>S.maxInnings){finish();return;}
+ render();
+ setTimeout(beginAtBat,400);
+}
+
+function finish(){
+ document.getElementById("game").classList.add("hidden");
+ document.getElementById("end").classList.remove("hidden");
+ const [a,b]=S.score;
+ document.getElementById("finalScore").textContent=`${S.teams[0]} ${a} - ${b} ${S.teams[1]}（${S.maxInnings}回）`;
+ document.getElementById("winner").textContent=a===b?"引き分け！":`${S.teams[a>b?0:1]} の勝利！`;
+}
+</script>
+</body>
+</html>
